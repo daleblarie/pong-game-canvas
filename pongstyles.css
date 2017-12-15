@@ -1,0 +1,25 @@
+.cell{
+  height: 20px;
+  width: 20px;
+  background: green
+}
+#game {
+  border: black solid 1px;
+  display: inline-block;
+}
+.row {
+  display: flex;
+}
+.row > div {
+  display: inline-block;
+}
+.ball {
+  background: yellow
+}
+.paddle {
+  background: black
+}
+
+canvas {
+  border: black solid 1px
+}
