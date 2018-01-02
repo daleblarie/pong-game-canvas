@@ -56,7 +56,7 @@ Paddle.prototype.draw = function draw() {
 // ball class
 function Ball(lpaddle, rpaddle) {
   this.pos = new Coord(BOARD_WIDTH / 2, BOARD_HEIGHT / 2);
-  this.vel = new Velocity(1, 1);
+  this.vel = new Velocity(1, 0);
   this.height = 2 * BALL_RADIUS;
   this.width = 2 * BALL_RADIUS;
   this.lpaddle = lpaddle;
@@ -66,17 +66,31 @@ function Ball(lpaddle, rpaddle) {
 Ball.prototype.move = function move() {
   // cases, change velocity if needed
   if (this.pos.y === BALL_RADIUS || this.pos.y === BOARD_HEIGHT - BALL_RADIUS) {
-    this.vel.y *= -1;
+    this.vel.yVel *= -1;
+  }  else if (this.pos.x === BALL_RADIUS + PADDLE_WIDTH && (lpaddle.topLeft.y < this.pos.y) && this.pos.y < (lpaddle.topLeft.y + PADDLE_HEIGHT)) {
+    this.vel.xVel = 1;
+    this.vel.yVel = ((this.pos.y - lpaddle.topLeft.y) - (PADDLE_HEIGHT / 2)) / (PADDLE_HEIGHT / 2);
+  }  else if (this.pos.x === BOARD_WIDTH - (BALL_RADIUS + PADDLE_WIDTH) && (rpaddle.topLeft.y < this.pos.y) && this.pos.y < (rpaddle.topLeft.y + PADDLE_HEIGHT)) {
+    this.vel.xVel = -1;
+    this.vel.yVel = ((this.pos.y - rpaddle.topLeft.y) - (PADDLE_HEIGHT / 2)) / (PADDLE_HEIGHT / 2);
   }
-
 
 
   // actually move according to updated velocity
   this.pos.x = this.pos.x + this.vel.xVel;
   this.pos.y = this.pos.y + this.vel.yVel;
-}
+  ball.draw();
+};
 
-
+Ball.prototype.draw = function draw() {
+  ctx.clearRect(PADDLE_WIDTH, 0, BOARD_WIDTH - PADDLE_WIDTH * 2, BOARD_HEIGHT);
+  ctx.fillStyle = 'rgb(0, 200, 0)';
+  ctx.beginPath();
+  ctx.arc(this.pos.x, this.pos.y, BALL_RADIUS, 0, Math.PI * 2, 1);
+  ctx.fill();
+  ctx.stroke();
+  ctx.closePath();
+};
 
 
 
@@ -89,6 +103,8 @@ const lpaddle = new Paddle(true);
 lpaddle.draw();
 const rpaddle = new Paddle(false);
 rpaddle.draw();
+const ball = new Ball(lpaddle, rpaddle);
+ball.draw();
 
 // event listeners
 const isThisKeyPressedDown = {}; // POJO: plain old javascript object. Hash Map. Key -> value
@@ -109,7 +125,9 @@ setInterval(() => {
   }
   rpaddle.draw();
   lpaddle.draw();
-}, 45);
+  ball.move();
+  ball.draw();
+}, 15);
 
 $(document).keydown(handler);
 $(document).keyup(handler);
