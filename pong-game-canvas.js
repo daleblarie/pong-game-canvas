@@ -81,11 +81,40 @@ function Ball(lpaddle, rpaddle) {
 }
 
 Ball.prototype.isInEndzone = function isInEndzone(score) {
-  if (this.ball.pos < 0) {
+  if (this.pos.x < 0) {
     score.incrementRscore();
+    const r = window.confirm('Do you want to keep playing?');
+    if (r) {
+      this.pos.x = (BOARD_WIDTH / 2);
+      this.pos.y = (BOARD_HEIGHT / 2);
+      this.vel.xVel = 1;
+      this.vel.yVel = 0;
+    } else {
+      this.pos.x = (BOARD_WIDTH / 2);
+      this.pos.y = (BOARD_HEIGHT / 2);
+      this.vel.xVel = 0;
+      this.vel.yVel = 0;
+    }
   }
-  if (this.ball.pos > BOARD_WIDTH) {
+  if (this.pos.x > BOARD_WIDTH) {
     score.incrementLscore();
+    const r = window.confirm('Do you want to keep playing?');
+    if (r) {
+      this.pos.x = (BOARD_WIDTH / 2);
+      this.pos.y = (BOARD_HEIGHT / 2);
+      this.vel.xVel = -1;
+      this.vel.yVel = 0;
+    } else {
+      this.pos.x = (BOARD_WIDTH / 2);
+      this.pos.y = (BOARD_HEIGHT / 2);
+      this.vel.xVel = 0;
+      this.vel.yVel = 0;
+      if (Score.Rscore > Score.Lscore) {
+        window.alert('Right Side Won!')
+      } else {
+        window.alert('Left Side Won!')
+      }
+    }
   }
 };
 
@@ -150,7 +179,8 @@ setInterval(() => {
   ball.draw();
   score.draw();
   ball.isInEndzone(score);
-}, 15);
+  score.draw();
+}, 5);
 
 $(document).keydown(handler);
 $(document).keyup(handler);
