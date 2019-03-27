@@ -51,12 +51,14 @@ Paddle.prototype.up = function up() {
   if (this.topLeft.y > 0) {
     this.topLeft.y = this.topLeft.y - 1;
   }
+  this.middle = this.height/2 + this.topLeft.y;
 };
 
 Paddle.prototype.down = function down() {
   if (this.topLeft.y + PADDLE_HEIGHT < BOARD_HEIGHT) {
     this.topLeft.y = this.topLeft.y + 1;
   }
+  this.middle = this.height/2 + this.topLeft.y;
 };
 
 
@@ -68,6 +70,11 @@ Paddle.prototype.draw = function draw() {
     ctx.clearRect(BOARD_WIDTH - this.width, 0, this.width, BOARD_HEIGHT);
   }
   ctx.fillRect(this.topLeft.x, this.topLeft.y, this.width, this.height);
+};
+
+Paddle.prototype.makeComputer = function (ball) {
+  this.isComputer = true;
+  this.middle = this.height/2 + this.topLeft.y;
 };
 
 // ball class
@@ -84,7 +91,7 @@ Ball.prototype.isInEndzone = function isInEndzone(score) {
   if (this.pos.x < 0) {
     score.incrementRscore();
     const r = window.confirm('Do you want to keep playing?');
-    if (r) {
+    if (true) {
       this.pos.x = (BOARD_WIDTH / 2);
       this.pos.y = (BOARD_HEIGHT / 2);
       this.vel.xVel = 1;
@@ -99,7 +106,7 @@ Ball.prototype.isInEndzone = function isInEndzone(score) {
   if (this.pos.x > BOARD_WIDTH) {
     score.incrementLscore();
     const r = window.confirm('Do you want to keep playing?');
-    if (r) {
+    if (true) {
       this.pos.x = (BOARD_WIDTH / 2);
       this.pos.y = (BOARD_HEIGHT / 2);
       this.vel.xVel = -1;
@@ -109,11 +116,11 @@ Ball.prototype.isInEndzone = function isInEndzone(score) {
       this.pos.y = (BOARD_HEIGHT / 2);
       this.vel.xVel = 0;
       this.vel.yVel = 0;
-      if (Score.Rscore > Score.Lscore) {
+      // if (Score.Rscore > Score.Lscore) {
         window.alert('Right Side Won!')
-      } else {
+      // } else {
         window.alert('Left Side Won!')
-      }
+      // }
     }
   }
 };
@@ -124,10 +131,10 @@ Ball.prototype.move = function move() {
   if (this.pos.y < BALL_RADIUS || this.pos.y > BOARD_HEIGHT - BALL_RADIUS) {
     this.vel.yVel *= -1;
   } else if (this.pos.x === BALL_RADIUS + PADDLE_WIDTH && (this.lpaddle.topLeft.y < this.pos.y) && this.pos.y < (this.lpaddle.topLeft.y + PADDLE_HEIGHT)) {
-    this.vel.xVel = 1;
+    this.vel.xVel = 2;
     this.vel.yVel = ((this.pos.y - this.lpaddle.topLeft.y) - (PADDLE_HEIGHT / 2)) / (PADDLE_HEIGHT / 2);
   } else if (this.pos.x === BOARD_WIDTH - (BALL_RADIUS + PADDLE_WIDTH) && (this.rpaddle.topLeft.y < this.pos.y) && this.pos.y < (this.rpaddle.topLeft.y + PADDLE_HEIGHT)) {
-    this.vel.xVel = -1;
+    this.vel.xVel = -2;
     this.vel.yVel = ((this.pos.y - this.rpaddle.topLeft.y) - (PADDLE_HEIGHT / 2)) / (PADDLE_HEIGHT / 2);
   }
 
@@ -152,6 +159,8 @@ const score = new Score(0, 0);
 const lpaddle = new Paddle(true);
 lpaddle.draw();
 const rpaddle = new Paddle(false);
+
+rpaddle.makeComputer();
 rpaddle.draw();
 const ball = new Ball(lpaddle, rpaddle);
 ball.draw();
@@ -163,10 +172,19 @@ const handler = function asdfasfasdfsda(event) {
 };
 
 setInterval(() => {
-  if (isThisKeyPressedDown[38]) { // up arrow
-    rpaddle.up();
-  } else if (isThisKeyPressedDown[40]) { // down arrow
-    rpaddle.down();
+  if (rpaddle.isComputer){
+    if (rpaddle.middle < ball.pos.y + 15){
+      rpaddle.down();
+    } else if (rpaddle.middle > ball.pos.y - 15) {
+      rpaddle.up();
+    }
+  }
+  else {
+    if (isThisKeyPressedDown[38]) { // up arrow
+      rpaddle.up();
+    } else if (isThisKeyPressedDown[40]) { // down arrow
+      rpaddle.down();
+    }
   }
   if (isThisKeyPressedDown[87]) { // w key
     lpaddle.up();
